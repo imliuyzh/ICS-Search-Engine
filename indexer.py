@@ -9,11 +9,10 @@ def tokenize(text: str) -> [str]:
     return re.findall(r"[a-z0-9]+", text.lower())
     #return re.sub(r'[^a-z0-9]', " ", text.lower()).split()
 
-def removeNoise(documentTree: BeautifulSoup) -> BeautifulSoup:
+def removeNoise(documentTree: BeautifulSoup) -> None:
     """Clear all the data noise from the given document tree."""
     for x in documentTree.findAll(["script", "style", "head"]):
         x.extract()
-    return documentTree
 
 def parse(toParse: dict) -> ([str], [str]):
     """Given a HTML string and parse it into a list of tokens."""
