@@ -9,15 +9,15 @@ def tokenize(text: str) -> [str]:
     return re.findall(r"[a-z0-9]+", text.lower())
     #return re.sub(r'[^a-z0-9]', " ", text.lower()).split()
 
-def removeNoise(documentTree: bs4.BeautifulSoup) -> bs4.BeautifulSoup:
-    """Clear all the data noise from the webpage given."""
+def removeNoise(documentTree: BeautifulSoup) -> BeautifulSoup:
+    """Clear all the data noise from the given document tree."""
     for x in documentTree.findAll(["script", "style", "head"]):
         x.extract()
     return documentTree
 
-def parse(toParse: str) -> ([str], [str]):
+def parse(toParse: dict) -> ([str], [str]):
     """Given a HTML string and parse it into a list of tokens."""
-    soup = BeautifulSoup(json.loads(toParse)['content'], 'lxml')
+    soup = BeautifulSoup(toParse['content'], 'lxml')
     importantToken = []
     for x in soup.findAll([
         "title", "strong", "b", "h1", "h2", "h3", "h4", "h5", "h6"]):
@@ -31,11 +31,10 @@ def index():
     i = defaultdict(set) #tokens
 
     #test parser
-    print(os.getcwd())
-    f = open(os.getcwd() + '\\documents\\086a1bfe6d5fc2a3b99b497026bbb79825e72ef608c9f34b03fa0ef480d5c2be.json')
-    for line in f:
-        print(parse(line))
-    f.close()
+    with open("./documents/086a1bfe6d5fc2a3b99b497026bbb79825"
+        + "e72ef608c9f34b03fa0ef480d5c2be.json") as jsonFile:
+        result = parse(json.load(jsonFile))
+        print(result[0], result[1], sep="\n")
 
 if __name__ == '__main__':
     index()
