@@ -1,4 +1,4 @@
-import json, os, re
+import json, re
 from collections import defaultdict
 from bs4 import BeautifulSoup
 from os import listdir
@@ -31,11 +31,14 @@ def index():
     n = 0 # docid
     i = defaultdict(set) #tokens
 
-
+    #the code for opening these files is from stack overflow
     for file_name in [f for f in listdir("./documents") if isfile(join("./documents", f))]:
         with open("./documents/" + file_name) as jsonFile:
-            result = parse(json.load(jsonFile))
-            print(result[0], result[1], sep="\n")
+            n = n + 1
+            importantToken, normalToken = parse(json.load(jsonFile))
+            for token in importantToken + normalToken:
+                i[token].add(n)
+    print(i)
 
 if __name__ == '__main__':
     index()
