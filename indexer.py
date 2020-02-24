@@ -6,6 +6,7 @@ from os import walk
 from bs4 import BeautifulSoup
 from nltk import PorterStemmer
 import datetime
+from sys import getsizeof
 
 #implement
 def tokenize(text: str) -> [str]:
@@ -31,9 +32,18 @@ def parse(toParse: dict) -> ([str], [str]):
     normalToken = tokenize(soup.get_text())
     return importantToken, normalToken
 
+def writeToIndex(new):
+    """Dumps >10MB index to old index"""
+    old = pickle.load(open("index.p", "rb"))
+    for key, set in new.items():
+        old[key] = old[key].union(set)
+    pickle.dump(old, open("index.p", "wb"))
+    new.clear()
+
 def index():
     n = 0 # docid
     i = defaultdict(set) #tokens
+    pickle.dump(i, open("index.p", "wb"))
     ps = PorterStemmer()
 
     #start time
@@ -42,17 +52,22 @@ def index():
     # From Stack Overflow
     # below line has old small documents option
     #for file_name in [f for f in listdir("./documents") if isfile(join("./documents", f))]:
-    for dirpath, _, files in walk("./DEV", topdown=False):
+    for dirpath, _, files in walk("./documents", topdown=False):
         for file_name in files:
             with open(join(dirpath, file_name)) as jsonFile:
                 n = n + 1
                 importantToken, normalToken = parse(json.load(jsonFile))
                 for token in importantToken + normalToken:
                     i[ps.stem(token)].add(n)
+                if getsizeof(i) > 10000000:
+                    writeToIndex(i)
+
+    writeToIndex(i)
+
+    i = pickle.load(open("index.p", "rb"))
 
     print("{0} unique documents".format(n))
     print("{0} unique tokens".format(len(i.keys())))
-    pickle.dump(i, open("index.p", "wb"))
 
     #end time
     print("end time: {0}".format(datetime.datetime.now()))
