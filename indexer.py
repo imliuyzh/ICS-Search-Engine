@@ -7,23 +7,26 @@ from bs4 import BeautifulSoup
 from nltk import PorterStemmer
 from sys import getsizeof
 
-
 tokenMatch = re.compile(r"[a-z0-9]+")
+
+
 def tokenize(text: str) -> [str]:
     """Take a string and break it down to a list of alphanumeric sequences."""
     return re.findall(tokenMatch, text.lower())
+
 
 def removeNoise(documentTree: BeautifulSoup) -> None:
     """Clear all the data noise from the given document tree."""
     for x in documentTree.findAll(["script", "style", "head"]):
         x.extract()
 
+
 def parse(toParse: dict) -> ([str], [str]):
     """Given a JSON dict and parse it into lists of tokens."""
     soup = BeautifulSoup(toParse['content'], 'lxml')
 
     importantCandidate = soup.findAll(["title", "strong", "b", "h1",
-        "h2", "h3", "h4", "h5", "h6"])
+                                       "h2", "h3", "h4", "h5", "h6"])
     importantTokens = []
     for x in importantCandidate:
         importantTokens.extend(tokenize(x.extract().get_text()))
@@ -31,6 +34,7 @@ def parse(toParse: dict) -> ([str], [str]):
     removeNoise(soup)
     normalTokens = tokenize(soup.get_text())
     return importantTokens, normalTokens
+
 
 def writeToIndex(new: dict) -> None:
     """Dumps >10MB index to old index"""
@@ -40,9 +44,10 @@ def writeToIndex(new: dict) -> None:
     pickle.dump(old, open("index.p", "wb"))
     new.clear()
 
+
 def index() -> None:
-    n = 0 # docid
-    i = defaultdict(set) #tokens
+    n = 0  # docid
+    i = defaultdict(set)  # tokens
     pickle.dump(i, open("index.p", "wb"))
     ps = PorterStemmer()
 
@@ -68,7 +73,7 @@ def index() -> None:
     print("{0} unique documents".format(n))
     print("{0} unique tokens".format(len(i.keys())))
 
-    #end time
+    # end time
     print("end time: {0}".format(datetime.datetime.now()))
 
 
