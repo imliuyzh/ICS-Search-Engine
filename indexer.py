@@ -1,6 +1,5 @@
 import json, re, pickle, datetime
 from collections import defaultdict
-from os import listdir
 from os.path import isfile, join
 from os import walk
 from bs4 import BeautifulSoup
@@ -50,6 +49,7 @@ def index() -> None:
     i = defaultdict(set)  # tokens
     pickle.dump(i, open("index.p", "wb"))
     ps = PorterStemmer()
+    idMap = defaultdict(str)
 
     # start time
     print("start time: {0}".format(datetime.datetime.now()))
@@ -60,13 +60,20 @@ def index() -> None:
         for file_name in files:
             with open(join(indexerPath, file_name)) as jsonFile:
                 n = n + 1
-                importantTokens, normalTokens = parse(json.load(jsonFile))
-                for token in importantTokens + normalTokens:
+                jFile = json.load(jsonFile)
+                idMap[n] = jFile['url']
+                importantTokens, normalTokens = parse(jFile)
+                for token in importantTokens:
                     i[ps.stem(token)].add(n)
+                for token in normalTokens:
+                    if token.isalpha():  # or not token.isnumeric()
+                        i[ps.stem(token)].add(n)
+
                 if getsizeof(i) > 10000000:
                     writeToIndex(i)
 
     writeToIndex(i)
+    pickle.dump(idMap, open("idMap.p", 'wb'))
 
     i = pickle.load(open("index.p", "rb"))
 
