@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 from os import listdir
 from os.path import isfile, join
 import pickle
-
+from nltk import PorterStemmer
 
 #implement
 def tokenize(text: str) -> [str]:
@@ -31,6 +31,7 @@ def parse(toParse: dict) -> ([str], [str]):
 def index():
     n = 0 # docid
     i = defaultdict(set) #tokens
+    ps = PorterStemmer()
 
     #the code for opening these files is from stack overflow
     for file_name in [f for f in listdir("./documents") if isfile(join("./documents", f))]:
@@ -38,7 +39,7 @@ def index():
             n = n + 1
             importantToken, normalToken = parse(json.load(jsonFile))
             for token in importantToken + normalToken:
-                i[token].add(n)
+                i[ps.stem(token)].add(n)
 
     print("{0} unique documents".format(n))
     print("{0} unique tokens".format(len(i.keys())))
