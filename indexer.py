@@ -1,6 +1,8 @@
 import json, os, re
 from collections import defaultdict
 from bs4 import BeautifulSoup
+from os import listdir
+from os.path import isfile, join
 
 
 #implement
@@ -29,11 +31,11 @@ def index():
     n = 0 # docid
     i = defaultdict(set) #tokens
 
-    #test parser
-    with open("./documents/086a1bfe6d5fc2a3b99b497026bbb79825"
-        + "e72ef608c9f34b03fa0ef480d5c2be.json") as jsonFile:
-        result = parse(json.load(jsonFile))
-        print(result[0], result[1], sep="\n")
+
+    for file_name in [f for f in listdir("./documents") if isfile(join("./documents", f))]:
+        with open("./documents/" + file_name) as jsonFile:
+            result = parse(json.load(jsonFile))
+            print(result[0], result[1], sep="\n")
 
 if __name__ == '__main__':
     index()
