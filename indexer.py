@@ -4,6 +4,7 @@ from os import listdir
 from os.path import isfile, join
 from bs4 import BeautifulSoup
 from nltk import PorterStemmer
+import datetime
 
 #implement
 def tokenize(text: str) -> [str]:
@@ -33,10 +34,14 @@ def index():
     n = 0 # docid
     i = defaultdict(set) #tokens
     ps = PorterStemmer()
+    path = "C:\\Users\\nnebel\\Desktop\\DEV"
+
+    #start time
+    print("start time: {0}".format(datetime.datetime.now()))
 
     # From Stack Overflow
-    for file_name in [f for f in listdir("./documents") if isfile(join("./documents", f))]:
-        with open("./documents/" + file_name) as jsonFile:
+    for file_name in [f for f in listdir(path) if isfile(join(path, f))]:
+        with open(path + "/" + file_name) as jsonFile:
             n = n + 1
             importantToken, normalToken = parse(json.load(jsonFile))
             for token in importantToken + normalToken:
@@ -45,6 +50,9 @@ def index():
     print("{0} unique documents".format(n))
     print("{0} unique tokens".format(len(i.keys())))
     pickle.dump(i, open("index.p", "wb"))
+
+    #end time
+    print("end time: {0}".format(datetime.datetime.now()))
 
 if __name__ == '__main__':
     index()
