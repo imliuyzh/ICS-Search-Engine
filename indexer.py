@@ -2,6 +2,7 @@ import json, re, pickle
 from collections import defaultdict
 from os import listdir
 from os.path import isfile, join
+from os import walk
 from bs4 import BeautifulSoup
 from nltk import PorterStemmer
 import datetime
@@ -34,18 +35,20 @@ def index():
     n = 0 # docid
     i = defaultdict(set) #tokens
     ps = PorterStemmer()
-    path = "C:\\Users\\nnebel\\Desktop\\DEV"
 
     #start time
     print("start time: {0}".format(datetime.datetime.now()))
 
     # From Stack Overflow
-    for file_name in [f for f in listdir(path) if isfile(join(path, f))]:
-        with open(path + "/" + file_name) as jsonFile:
-            n = n + 1
-            importantToken, normalToken = parse(json.load(jsonFile))
-            for token in importantToken + normalToken:
-                i[ps.stem(token)].add(n)
+    # below line has old small documents option
+    #for file_name in [f for f in listdir("./documents") if isfile(join("./documents", f))]:
+    for dirpath, _, files in walk("./DEV", topdown=False):
+        for file_name in files:
+            with open(join(dirpath, file_name)) as jsonFile:
+                n = n + 1
+                importantToken, normalToken = parse(json.load(jsonFile))
+                for token in importantToken + normalToken:
+                    i[ps.stem(token)].add(n)
 
     print("{0} unique documents".format(n))
     print("{0} unique tokens".format(len(i.keys())))
