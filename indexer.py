@@ -3,6 +3,7 @@ from collections import defaultdict
 from bs4 import BeautifulSoup
 from os import listdir
 from os.path import isfile, join
+import pickle
 
 
 #implement
@@ -38,7 +39,10 @@ def index():
             importantToken, normalToken = parse(json.load(jsonFile))
             for token in importantToken + normalToken:
                 i[token].add(n)
-    print(i)
+
+    print("{0} unique documents".format(n))
+    print("{0} unique tokens".format(len(i.keys())))
+    pickle.dump(i, open("index.p", "wb"))
 
 if __name__ == '__main__':
     index()
