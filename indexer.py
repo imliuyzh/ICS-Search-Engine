@@ -4,7 +4,6 @@ from bs4 import BeautifulSoup
 from os import listdir
 from os.path import isfile, join
 import pickle
-from nltk.stem import PorterStemmer
 
 
 #implement
@@ -32,7 +31,6 @@ def parse(toParse: dict) -> ([str], [str]):
 def index():
     n = 0 # docid
     i = defaultdict(set) #tokens
-    ps = PorterStemmer()
 
     #the code for opening these files is from stack overflow
     for file_name in [f for f in listdir("./documents") if isfile(join("./documents", f))]:
@@ -40,13 +38,10 @@ def index():
             n = n + 1
             importantToken, normalToken = parse(json.load(jsonFile))
             for token in importantToken + normalToken:
-                # if ps.stem(token) != token:
-                #    print("Stemmed {} to {}".format(token, ps.stem(token)))
-                i[ps.stem(token)].add(n)
+                i[token].add(n)
 
     print("{0} unique documents".format(n))
     print("{0} unique tokens".format(len(i.keys())))
-
     pickle.dump(i, open("index.p", "wb"))
 
 if __name__ == '__main__':
