@@ -89,7 +89,12 @@ ipython_config.py
 bin/
 lib64
 pyvenv.cfg
+
+# vim
 *.swp
+
+# Index files
+*.p
 
 # pipenv
 #   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
