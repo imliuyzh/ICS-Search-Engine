@@ -1,4 +1,4 @@
-import json, re, pickle, datetime
+import json, re, pickle, datetime, time
 from collections import defaultdict
 from os.path import isfile, join
 from os import walk
@@ -71,7 +71,7 @@ def index() -> None:
     # start time
     print("start time: {0}".format(datetime.datetime.now()))
     # From Stack Overflow
-
+    t = time.time()
     for indexerPath, _, files in walk("./DEV", topdown=True):
         for file_name in files:
             with open(join(indexerPath, file_name)) as jsonFile:
@@ -95,7 +95,10 @@ def index() -> None:
                         writeToIndex(i)
 
                     if n % 50 == 0:
-                        print('Document number: {} of 50k, {} skipped.'.format(n, skipped))
+                        print("docID: {0} of 50k, {1} skipped ({2:.4f}%), t+{3:.1f}s".format(n, skipped,
+                                                                                            skipped / (n + skipped),
+                                                                                            time.time() - t)
+                              )
 
     writeToIndex(i)
     pickle.dump(idMap, open("idMap.p", 'wb'))
