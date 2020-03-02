@@ -11,7 +11,7 @@ tokenMatch = re.compile(r"[a-z0-9]+")
 ps = PorterStemmer()
 
 def tokenize(text: str) -> [str]:
-    """Take a string and break it down to a list of alphanumeric sequences."""
+    """Take a string and break it down to a list of alphanumeric sequences, and stems."""
     return list( ps.stem(token) for token in re.findall(tokenMatch, text.lower()) )
 
 
@@ -38,15 +38,20 @@ def parseTokens(toParse: dict) -> ([str], [str]):
 
 def writeToIndex(new: dict) -> None:
     """Dumps >10MB index to old index"""
+    print('Dumping dictionary.', end='')
     old = pickle.load(open("index.p", "rb"))
+    print('.', end='')
     for key, docDict in new.items():
         for docID, info in docDict.items():
             old[key][docID] = info
+    print('.', end='')
     pickle.dump(old, open("index.p", "wb"))
+    print(' Done.')
     new.clear()
 
 
 def tokenCounter(imp, norm) -> dict:
+    '''sum contents of parseTokens return'''
     countDict = defaultdict(int)
     out = set()
     for token in imp + norm:
@@ -60,21 +65,20 @@ def index() -> None:
     i = defaultdict(dict)  # index  = {term: {docID: (important, count) } }
     pickle.dump(i, open("index.p", "wb"))
     visitedUrls = set()
-
+    skipped = 0
     idMap = dict()  # idMap = { id_int : ( url, terms_in_document )  }
 
     # start time
     print("start time: {0}".format(datetime.datetime.now()))
     # From Stack Overflow
 
-    for indexerPath, _, files in walk("./documents", topdown=False):
-        iterNames = iter(files)
-        for file_name in iterNames:
+    for indexerPath, _, files in walk("./DEV", topdown=True):
+        for file_name in files:
             with open(join(indexerPath, file_name)) as jsonFile:
                 jFile = json.load(jsonFile)
                 pjFile = urlparse(jFile['url'])[1:4]
                 if pjFile in visitedUrls:
-                    pass
+                    skipped += 1
                 else:
                     visitedUrls.add(pjFile)
                     n += 1
@@ -91,11 +95,10 @@ def index() -> None:
                         writeToIndex(i)
 
                     if n % 50 == 0:
-                        print('Document number: ' + str(n) + " of 1988")
+                        print('Document number: {} of 50k, {} skipped.'.format(n, skipped))
 
     writeToIndex(i)
     pickle.dump(idMap, open("idMap.p", 'wb'))
-    print(visitedUrls)
     i = pickle.load(open("index.p", "rb"))
 
     print("{0} unique documents".format(n))
