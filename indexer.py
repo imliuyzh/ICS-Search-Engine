@@ -7,11 +7,11 @@ from nltk import PorterStemmer
 from sys import getsizeof
 
 tokenMatch = re.compile(r"[a-z0-9]+")
-
+ps = PorterStemmer()
 
 def tokenize(text: str) -> [str]:
     """Take a string and break it down to a list of alphanumeric sequences."""
-    return re.findall(tokenMatch, text.lower())
+    return list( ps.stem(token) for token in re.findall(tokenMatch, text.lower()) )
 
 
 def removeNoise(documentTree: BeautifulSoup) -> None:
@@ -48,7 +48,7 @@ def index() -> None:
     n = 0  # docid
     i = defaultdict(set)  # tokens
     pickle.dump(i, open("index.p", "wb"))
-    ps = PorterStemmer()
+
     idMap = defaultdict(str)
 
     # start time
@@ -64,10 +64,10 @@ def index() -> None:
                 idMap[n] = jFile['url']
                 importantTokens, normalTokens = parse(jFile)
                 for token in importantTokens:
-                    i[ps.stem(token)].add(n)
+                    i[token].add(n)
                 for token in normalTokens:
-                    if token.isalpha():  # or not token.isnumeric()
-                        i[ps.stem(token)].add(n)
+                    if not token.isnumeric():
+                        i[token].add(n)
 
                 if getsizeof(i) > 10000000:
                     writeToIndex(i)

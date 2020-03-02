@@ -16,7 +16,6 @@ def search(userIn : str )->[str]:
     for token in inputTokens:
         sets.add(frozenset(index[ps.stem(token)]))
 
-
     return getUrls(frozenset.intersection(*sets))
 
 def getUrls(docIDs : set) -> [str]:
