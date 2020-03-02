@@ -39,7 +39,7 @@ def writeToIndex(new: dict) -> None:
     """Dumps >10MB index to old index"""
     old = pickle.load(open("index.p", "rb"))
     for key, docDict in new.items():
-        for docID, info in new.items():
+        for docID, info in docDict.items():
             old[key][docID] = info
     pickle.dump(old, open("index.p", "wb"))
     new.clear()
