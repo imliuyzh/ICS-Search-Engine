@@ -38,39 +38,56 @@ def parse(toParse: dict) -> ([str], [str]):
 def writeToIndex(new: dict) -> None:
     """Dumps >10MB index to old index"""
     old = pickle.load(open("index.p", "rb"))
-    for key, ids in new.items():
-        old[key] = old[key].union(ids)
+    for key, docDict in new.items():
+        for docID, info in new.items():
+            old[key][docID] = info
     pickle.dump(old, open("index.p", "wb"))
     new.clear()
 
 
+def tokenCounter(imp, norm) -> dict:
+    countDict = defaultdict(int)
+    out = set()
+    for token in imp + norm:
+        countDict[token] += 1
+
+    return countDict
+
+
+
 def index() -> None:
     n = 0  # docid
-    i = defaultdict(set)  # tokens
+    i = defaultdict(dict)  # index  = {term: {docID: (important, count) } }
     pickle.dump(i, open("index.p", "wb"))
 
-    idMap = defaultdict(str)
+    idMap = dict()  # idMap = { id_int : ( url, terms_in_document )  }
 
     # start time
     print("start time: {0}".format(datetime.datetime.now()))
 
     # From Stack Overflow
 
-    for indexerPath, _, files in walk("./DEV", topdown=False):
+    for indexerPath, _, files in walk("./documents", topdown=False):
         for file_name in files:
             with open(join(indexerPath, file_name)) as jsonFile:
                 n = n + 1
                 jFile = json.load(jsonFile)
-                idMap[n] = jFile['url']
+
                 importantTokens, normalTokens = parse(jFile)
-                for token in importantTokens:
-                    i[token].add(n)
+
+                tokenCounts = tokenCounter(importantTokens, normalTokens)
+
                 for token in normalTokens:
                     if not token.isnumeric():
-                        i[token].add(n)
-
+                        i[token][n] = (False, tokenCounts[token])
+                for token in importantTokens:
+                    i[token][n] = (True, tokenCounts[token])
+                idMap[n] = (jFile['url'], len(importantTokens) + len(normalTokens))
                 if getsizeof(i) > 10000000:
                     writeToIndex(i)
+
+                if n % 50 == 0:
+                    print('Document number: ' + str(n) + " of 1988")
 
     writeToIndex(i)
     pickle.dump(idMap, open("idMap.p", 'wb'))
