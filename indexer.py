@@ -5,6 +5,7 @@ from os import walk
 from bs4 import BeautifulSoup
 from nltk import PorterStemmer
 from sys import getsizeof
+from urllib.parse import urlparse
 
 tokenMatch = re.compile(r"[a-z0-9]+")
 ps = PorterStemmer()
@@ -20,7 +21,7 @@ def removeNoise(documentTree: BeautifulSoup) -> None:
         x.extract()
 
 
-def parse(toParse: dict) -> ([str], [str]):
+def parseTokens(toParse: dict) -> ([str], [str]):
     """Given a JSON dict and parse it into lists of tokens."""
     soup = BeautifulSoup(toParse['content'], 'lxml')
 
@@ -54,44 +55,47 @@ def tokenCounter(imp, norm) -> dict:
     return countDict
 
 
-
 def index() -> None:
     n = 0  # docid
     i = defaultdict(dict)  # index  = {term: {docID: (important, count) } }
     pickle.dump(i, open("index.p", "wb"))
+    visitedUrls = set()
 
     idMap = dict()  # idMap = { id_int : ( url, terms_in_document )  }
 
     # start time
     print("start time: {0}".format(datetime.datetime.now()))
-
     # From Stack Overflow
 
     for indexerPath, _, files in walk("./documents", topdown=False):
-        for file_name in files:
+        iterNames = iter(files)
+        for file_name in iterNames:
             with open(join(indexerPath, file_name)) as jsonFile:
-                n = n + 1
                 jFile = json.load(jsonFile)
+                pjFile = urlparse(jFile['url'])[1:4]
+                if pjFile in visitedUrls:
+                    pass
+                else:
+                    visitedUrls.add(pjFile)
+                    n += 1
+                    importantTokens, normalTokens = parseTokens(jFile)
+                    tokenCounts = tokenCounter(importantTokens, normalTokens)
 
-                importantTokens, normalTokens = parse(jFile)
+                    for token in normalTokens:
+                        if not token.isnumeric():
+                            i[token][n] = (False, tokenCounts[token])
+                    for token in importantTokens:
+                        i[token][n] = (True, tokenCounts[token])
+                    idMap[n] = (jFile['url'], len(importantTokens) + len(normalTokens))
+                    if getsizeof(i) > 10000000:
+                        writeToIndex(i)
 
-                tokenCounts = tokenCounter(importantTokens, normalTokens)
-
-                for token in normalTokens:
-                    if not token.isnumeric():
-                        i[token][n] = (False, tokenCounts[token])
-                for token in importantTokens:
-                    i[token][n] = (True, tokenCounts[token])
-                idMap[n] = (jFile['url'], len(importantTokens) + len(normalTokens))
-                if getsizeof(i) > 10000000:
-                    writeToIndex(i)
-
-                if n % 50 == 0:
-                    print('Document number: ' + str(n) + " of 1988")
+                    if n % 50 == 0:
+                        print('Document number: ' + str(n) + " of 1988")
 
     writeToIndex(i)
     pickle.dump(idMap, open("idMap.p", 'wb'))
-
+    print(visitedUrls)
     i = pickle.load(open("index.p", "rb"))
 
     print("{0} unique documents".format(n))
