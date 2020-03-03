@@ -22,7 +22,7 @@ def search(userIn: str) -> [str]:
 def getUrls(docIDs: frozenset) -> [str]:
     return [idmap[docid] for docid in docIDs]
 
-def get_tf_idf_list(terms: set) -> [(int, int)]:
+def get_tf_idf_list(terms: set) -> [int]:
     def find_document(doc_ids: set) -> dict:
         document_dict = {doc_id:0 for doc_id in doc_ids}
         for doc_id in doc_ids:
@@ -36,7 +36,7 @@ def get_tf_idf_list(terms: set) -> [(int, int)]:
         for term in terms:
             tf, idf = (index[term][docid][1] / idmap[docid][1]), (math.log(n / len(index[term].keys())))
             tf_idf_dict[docid] += (tf * idf)
-    return sorted(tf_idf_dict, key=lambda x: x[1])
+    return sorted(tf_idf_dict, key=lambda x: -tf_idf_dict[x])
 
 # index = {term: {docID: (important, count)}}
 # idMap = {id_int: (url, terms_in_document)}
