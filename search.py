@@ -12,8 +12,7 @@ ps = PorterStemmer()
 term_freqs = dict()
 id_freqs = dict()
 def search(userIn: str) -> [str]:
-
-    stemmed = ps.stem(userIn)
+    stemmed = set(ps.stem(token) for token in userIn.lower().split())
     return get_tf_idf_list(stemmed)
 
 def getUrls(docIDs: frozenset) -> [str]:
