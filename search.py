@@ -20,6 +20,7 @@ def search(userIn: str) -> [str]:
         token_posting = get_tf_idf_list(token)
         postings.extend(token_posting)
         print(token_posting)
+    postings.sort(key=lambda x: x[1])
     return postings
 
 def getUrls(docIDs: frozenset) -> [str]:
@@ -29,17 +30,15 @@ def get_tf_idf_list(term):
     def tf_idf(term, docid):
         tf, idf = (index[term][docid][1] / idmap[docid][1]), (math.log(n / len(index[term].keys())))
         return tf * idf
-
+        
     tf_idf_list = []
     for docid in index[term].keys():
         print(docid)
         tf_idf_list.append((docid, tf_idf(term, docid)))
-        
-    tf_idf_list.sort(key=lambda x: x[1])
     return tf_idf_list
 
-# index  = {term: {docID: (important, count) } }
-# idMap = { id_int : ( url, terms_in_document )  }
+# index = {term: {docID: (important, count)}}
+# idMap = {id_int: (url, terms_in_document)}
 
 if __name__ == "__main__":
     inp = input("Please enter a query (or enter :q to exit): ")
@@ -48,5 +47,7 @@ if __name__ == "__main__":
         e = search(inp)
         t = time.time() - t
         print(e, t, len(e))
+        for counter in range(0, 5):
+            print(idMap[postings[counter][0]][0])
         inp = input("Please enter a query: ")
 
