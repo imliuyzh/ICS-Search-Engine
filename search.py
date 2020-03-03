@@ -13,11 +13,10 @@ term_freqs = dict()
 id_freqs = dict()
 
 
-def search(userIn: str) -> [str]:
+def search(userIn: str) -> [int]:
     tokens = set(ps.stem(token) for token in userIn.lower().split())
     postings = get_tf_idf_list(tokens) 
-    print(posting)
-    return postings
+    return postings[0:5]
 
 def getUrls(docIDs: frozenset) -> [str]:
     return [idmap[docid] for docid in docIDs]
@@ -30,8 +29,13 @@ def get_tf_idf_list(terms: set) -> [int]:
                 if doc_id not in index[term].keys():
                     document_dict.pop(doc_id)
         return document_dict
-        
-    tf_idf_dict = find_document(set(doc_id for doc_id in index[term].keys() for term in terms))
+    
+    doc_set = set()
+    for term in terms:
+        for doc_id in index[term].keys():
+            doc_set.add(doc_id)
+
+    tf_idf_dict = find_document(doc_set)
     for docid in tf_idf_dict:
         for term in terms:
             tf, idf = (index[term][docid][1] / idmap[docid][1]), (math.log(n / len(index[term].keys())))
@@ -48,6 +52,6 @@ if __name__ == "__main__":
         e = search(inp)
         t = time.time() - t
         print(e, t, len(e))
-        for counter in range(0, 5):
-            print(idmap[e[counter][0]][0])
+        for doc in e:
+            print(idmap[doc][0])
         inp = input("Please enter a query: ")
