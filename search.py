@@ -27,7 +27,10 @@ def get_tf_idf_list(terms: set) -> [int]:
         for doc_id in doc_ids:
             for term in terms:
                 if doc_id not in index[term].keys():
-                    document_dict.pop(doc_id)
+                    try:
+                        document_dict.pop(doc_id)
+                    except:
+                        pass
         return document_dict
     
     doc_set = set()
