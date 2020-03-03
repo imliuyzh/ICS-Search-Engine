@@ -95,6 +95,8 @@ pyvenv.cfg
 
 # Index files
 *.p
+developer.zip
+DEV/
 
 # pipenv
 #   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
