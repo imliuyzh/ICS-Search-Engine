@@ -11,7 +11,7 @@ tokenMatch = re.compile(r"[a-z0-9]+")
 ps = PorterStemmer()
 
 def tokenize(text: str) -> [str]:
-    """Take a string and break it down to a list of alphanumeric sequences, and stems."""
+    """Take a string and break it down to a list of alphanumeric sequences and stems."""
     return list( ps.stem(token) for token in re.findall(tokenMatch, text.lower()) )
 
 

@@ -4,54 +4,49 @@ import time
 import math
 from itertools import islice
 
-index = pickle.load(open("index.p", 'rb' ))
+index = pickle.load(open("index.p", 'rb'))
 n = len(index)
 idmap = pickle.load(open("idMap.p", 'rb'))
 stops = pickle.load(open("stops.p", 'rb'))
 ps = PorterStemmer()
 term_freqs = dict()
 id_freqs = dict()
-def search(userIn: str) -> [str]:
 
-    stemmed = ps.stem(userIn)
-    return get_tf_idf_list(stemmed)
+
+def search(userIn: str) -> [str]:
+    tokens = set(ps.stem(token) for token in re.findall(tokenMatch, text.lower()))
+    postings = []
+    for token in tokens:
+        token_posting = get_tf_idf_list(token)
+        postings.extend(token_posting)
+        print(token_posting)
+    return postings
 
 def getUrls(docIDs: frozenset) -> [str]:
     return [idmap[docid] for docid in docIDs]
 
-
 def get_tf_idf_list(term):
-
-    def tf(term, docid):
-        return index[term][docid][1] / idmap[docid][1]
-
-    def idf(term):
-        return math.log(n / len(index[term].keys()))
-
     def tf_idf(term, docid):
-        return tf(term, docid) * idf(term)
+        tf, idf = (index[term][docid][1] / idmap[docid][1]), (math.log(n / len(index[term].keys())))
+        return tf * idf
 
     tf_idf_list = []
     for docid in index[term].keys():
         print(docid)
         tf_idf_list.append((docid, tf_idf(term, docid)))
-
-    return sorted(tf_idf_list, key=lambda x: x[1])
+        
+    tf_idf_list.sort(key=lambda x: x[1])
+    return tf_idf_list
 
 # index  = {term: {docID: (important, count) } }
 # idMap = { id_int : ( url, terms_in_document )  }
 
 if __name__ == "__main__":
-    inp = ''
-    print("Please enter a query (or enter :q to exit)")
-    inp = input()
-
-    print(get_tf_idf_list(inp))
+    inp = input("Please enter a query (or enter :q to exit): ")
     while inp != ":q":
         t = time.time()
         e = search(inp)
         t = time.time() - t
         print(e, t, len(e))
-        print("Please enter a query: ")
-        inp = input()
+        inp = input("Please enter a query: ")
 
