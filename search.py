@@ -14,7 +14,7 @@ id_freqs = dict()
 
 
 def search(userIn: str) -> [str]:
-    tokens = set(ps.stem(token) for token in re.findall(tokenMatch, text.lower()))
+    tokens = set(ps.stem(token) for token in userIn.lower().split())
     postings = []
     for token in tokens:
         token_posting = get_tf_idf_list(token)
