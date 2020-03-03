@@ -48,6 +48,6 @@ if __name__ == "__main__":
         t = time.time() - t
         print(e, t, len(e))
         for counter in range(0, 5):
-            print(idMap[postings[counter][0]][0])
+            print(idMap[e[counter][0]][0])
         inp = input("Please enter a query: ")
 
