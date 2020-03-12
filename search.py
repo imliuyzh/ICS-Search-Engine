@@ -3,6 +3,7 @@ import pickle
 import time
 import math
 from itertools import islice
+from urllib.parse import urlparse
 
 index = pickle.load(open("index.p", 'rb'))
 n = len(index)
@@ -16,7 +17,7 @@ id_freqs = dict()
 def search(userIn: str) -> [int]:
     tokens = set(ps.stem(token) for token in userIn.lower().split())
     postings = get_tf_idf_list(tokens) 
-    return postings[0:5]
+    return postings
 
 def getUrls(docIDs: frozenset) -> [str]:
     return [idmap[docid] for docid in docIDs]
@@ -48,13 +49,35 @@ def get_tf_idf_list(terms: set) -> [int]:
 # index = {term: {docID: (important, count)}}
 # idMap = {id_int: (url, terms_in_document)}
 
+def getNextUrl(results: list, numResults=5) -> str:   #idmap[e[counter][0]][0]
+    resultLen = len(results)
+    pageCt = 0
+    triedPages = 0
+    visited = set()
+    print(results)
+    while pageCt < numResults and triedPages < resultLen:
+        url = idmap[results[triedPages]][0]
+        parsedUrl = urlparse(url)
+        pathMinusFile = tuple(parsedUrl.path[1:].split('/')[:-1])
+        if not parsedUrl.path:
+            pageCt += 1
+            yield url
+
+        elif pathMinusFile not in visited:
+            visited.add(pathMinusFile)
+            pageCt += 1
+            yield url
+        triedPages += 1
+    print("End of results")
+
+
+
 if __name__ == "__main__":
     inp = input("Please enter a query (or enter :q to exit): ")
     while inp != ":q":
         t = time.time()
-        e = search(inp)
+        searchResults = search(inp)
         t = time.time() - t
-        print(e, t, len(e))
-        for doc in e:
-            print(idmap[doc][0])
+        for page in getNextUrl(searchResults):
+            print(page)
         inp = input("Please enter a query: ")
