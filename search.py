@@ -15,7 +15,7 @@ id_freqs = dict()
 
 
 def get_token_info(token: str) -> dict: # {term: {docID: (important, count)}
-    p = pickle.load("./index/{}.p".format(token[0]), 'rb')
+    p = pickle.load(open("./index/{}.p".format(token[0]), 'rb'))
     return p[ps.stem(token)]
 
 def search(userIn: str) -> [int]:
