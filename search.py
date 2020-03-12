@@ -14,6 +14,10 @@ term_freqs = dict()
 id_freqs = dict()
 
 
+def get_token_info(token: str) -> dict: # {term: {docID: (important, count)}
+    p = pickle.load("./index/{}.p".format(token[0]), 'rb')
+    return p[ps.stem(token)]
+
 def search(userIn: str) -> [int]:
     tokens = set(ps.stem(token) for token in userIn.lower().split())
     postings = get_tf_idf_list(tokens) 
