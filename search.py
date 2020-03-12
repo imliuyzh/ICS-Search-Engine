@@ -80,4 +80,5 @@ if __name__ == "__main__":
         t = time.time() - t
         for page in getNextUrl(searchResults):
             print(page)
+        print("Your query took {} seconds.\n".format(t))
         inp = input("Please enter a query: ")
