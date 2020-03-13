@@ -45,9 +45,7 @@ def get_term_info_file_version(term: str) -> dict:
     term_info_file = open_files[term[0]]
     term_info_file.seek(term_indices[term])
     term_info = term_info_file.readline()
-    print(term_info)
     term_info_list = term_info.split(',')
-    print(term_info_list)
     term_info = {}
     for i in range(1, (len(term_info_list) - 4), 3):
         term_info[int(term_info_list[i])] = (bool(term_info_list[i+1]), int(term_info_list[i+2]))
@@ -88,10 +86,8 @@ def get_tf_idf_list(terms: set) -> [int]:
     tf_idf_dict = find_document(doc_set)
     for docid in tf_idf_dict:
         for term in terms:
-            tf = term_dict[term][docid][1]
-            oth = idmap[docid][1]
-            idf = (math.log(n / len(term_dict[term].keys())))
-            tf_idf_dict[docid] += (tf/oth * idf)
+            tf, idf = (term_dict[term][docid][1] / idmap[docid][1]), (math.log(n / len(term_dict[term].keys())))
+            tf_idf_dict[docid] += (tf * idf)
     return sorted(tf_idf_dict, key=lambda x: -tf_idf_dict[x])
 
 # index = {term: {docID: (important, count)}}
