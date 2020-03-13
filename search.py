@@ -43,6 +43,10 @@ class cache:
                 del cache.store_dict[to_remove]
 
             return p[ps.stem(token)]
+    @classmethod
+    def clear(cls):
+        cache.store = []
+        cache.store_dict = {}
 
 def get_token_info(token: str) -> dict: # {term: {docID: (important, count)}
     return cache.get_index(token)
@@ -142,3 +146,4 @@ if __name__ == "__main__":
             print(page)
         print("Your query took {} seconds.\n".format(t))
         inp = input("Please enter a query (or enter :q to exit): ")
+        cache.clear()

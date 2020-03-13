@@ -2,6 +2,7 @@ import json, re, pickle, datetime, time
 from collections import defaultdict
 from os.path import isfile, join
 from os import walk
+import os
 from bs4 import BeautifulSoup
 from nltk import PorterStemmer
 from sys import getsizeof
@@ -9,6 +10,11 @@ from urllib.parse import urlparse
 
 tokenMatch = re.compile(r"[a-z0-9]+")
 ps = PorterStemmer()
+
+stats = {'Token Count' : 0}
+
+class container:
+    i = 0
 
 def tokenize(text: str) -> [str]:
     """Take a string and break it down to a list of alphanumeric sequences and stems."""
@@ -38,16 +44,13 @@ def parseTokens(toParse: dict) -> ([str], [str]):
 
 def writeToIndex(new: dict) -> None:
     """Dumps >10MB index to old index"""
-    print('Dumping dictionary.', end='')
-    old = pickle.load(open("index.p", "rb"))
-    print('.', end='')
-    for key, docDict in new.items():
-        for docID, info in docDict.items():
-            old[key][docID] = info
-    print('.', end='')
-    pickle.dump(old, open("index.p", "wb"))
+    print('Dumping dictionary: {0}'.format(container.i), end='')
+    pickle.dump(new, open("indexStage1/index{0}.p".format(container.i), "wb"))
     print(' Done.')
+    print('stored {0} unique tokens in index {1}'.format(len(dict), container.i))
+    stats['Token Count'] = stats['Token Count'] + len(dict)
     new.clear()
+    container.i = container.i + 1
 
 
 def tokenCounter(imp, norm) -> dict:
@@ -63,7 +66,6 @@ def tokenCounter(imp, norm) -> dict:
 def index() -> None:
     n = 0  # docid
     i = defaultdict(dict)  # index  = {term: {docID: (important, count) } }
-    pickle.dump(i, open("index.p", "wb"))
     visitedUrls = set()
     skipped = 0
     idMap = dict()  # idMap = { id_int : ( url, terms_in_document )  }
@@ -102,14 +104,14 @@ def index() -> None:
 
     writeToIndex(i)
     pickle.dump(idMap, open("idMap.p", 'wb'))
-    i = pickle.load(open("index.p", "rb"))
-
-    print("{0} unique documents".format(n))
-    print("{0} unique tokens".format(len(i.keys())))
-
+    print("Total Tokens: {0}".format(stats['Token Count']))
     # end time
     print("end time: {0}".format(datetime.datetime.now()))
 
 
 if __name__ == '__main__':
+    try:
+        os.mkdir("indexStage1")
+    except(FileExistsError):
+        pass
     index()
