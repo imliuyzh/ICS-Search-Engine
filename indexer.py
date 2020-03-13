@@ -74,7 +74,7 @@ def index() -> None:
     print("start time: {0}".format(datetime.datetime.now()))
     # From Stack Overflow
     t = time.time()
-    for indexerPath, _, files in walk("C:/Users/nnebel/Desktop/DEV", topdown=True):
+    for indexerPath, _, files in walk("DEV/", topdown=True):
         for file_name in files:
             with open(join(indexerPath, file_name)) as jsonFile:
                 jFile = json.load(jsonFile)
