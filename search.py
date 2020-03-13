@@ -1,12 +1,18 @@
 from nltk import PorterStemmer
 import pickle
 import time
+import os
 import math
 from itertools import islice
 from urllib.parse import urlparse
 
-index = pickle.load(open("index.p", 'rb'))
-n = len(index)
+def get_total_tokens():
+    sum = 0
+    for f in "0123456789abcdefghijklmnopqrstuvwxyz":
+        sum += len(pickle.load(open("./index/{}.p".format(f), 'rb')))
+    return sum
+
+n = get_total_tokens()
 idmap = pickle.load(open("idMap.p", 'rb'))
 stops = pickle.load(open("stops.p", 'rb'))
 ps = PorterStemmer()
@@ -24,9 +30,6 @@ MODE = ORIGINAL
 def get_token_info(token: str) -> dict: # {term: {docID: (important, count)}
     p = pickle.load(open("./index/{}.p".format(token[0]), 'rb'))
     return p[ps.stem(token)]
-
-def get_term_info_original_version(term: str) -> dict:
-    return index[term]
 
 def get_term_info_dict_version(term: str) -> dict:
     with open("./index/{}.p".format(term[0]), 'rb') as p:
@@ -56,15 +59,8 @@ def getUrls(docIDs: frozenset) -> [str]:
 def get_tf_idf_list(terms: set) -> [int]:
 
     term_dict = dict()
-    if MODE == ORIGINAL:
-        for term in terms:
-            term_dict[term] = get_term_info_original_version(term)
-    elif MODE == DICT:
-        for term in terms:
-            term_dict[term] = get_term_info_dict_version(term)
-    elif MODE == FILE:
-        for term in terms:
-            term_dict[term] = get_term_info_file_version(term)
+    for term in terms:
+        term_dict[term] = get_term_info_dict_version(term)
 
     def find_document(doc_ids: set) -> dict:
         document_dict = {doc_id:0 for doc_id in doc_ids}
