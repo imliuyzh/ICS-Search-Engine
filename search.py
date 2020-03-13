@@ -109,7 +109,7 @@ def get_tf_idf_list(terms: set) -> [int]:
 # index = {term: {docID: (important, count)}}
 # idMap = {id_int: (url, terms_in_document)}
 
-def getNextUrl(results: list, numResults=5) -> str:   #idmap[e[counter][0]][0]
+def getNextUrl(results: [int], numResults=5) -> str:   #idmap[e[counter][0]][0]
     resultLen = len(results)
     pageCt = 0
     triedPages = 0
