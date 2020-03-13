@@ -18,6 +18,7 @@ stops = pickle.load(open("stops.p", 'rb'))
 ps = PorterStemmer()
 term_freqs = dict()
 id_freqs = dict()
+stop_words = ["i", "me", "my", "myself", "we", "our", "ours", "ourselves", "you", "your", "yours", "yourself", "yourselves", "he", "him", "his", "himself", "she", "her", "hers", "herself", "it", "its", "itself", "they", "them", "their", "theirs", "themselves", "what", "which", "who", "whom", "this", "that", "these", "those", "am", "is", "are", "was", "were", "be", "been", "being", "have", "has", "had", "having", "do", "does", "did", "doing", "a", "an", "the", "and", "but", "if", "or", "because", "as", "until", "while", "of", "at", "by", "for", "with", "about", "against", "between", "into", "through", "during", "before", "after", "above", "below", "to", "from", "up", "down", "in", "out", "on", "off", "over", "under", "again", "further", "then", "once", "here", "there", "when", "where", "why", "how", "all", "any", "both", "each", "few", "more", "most", "other", "some", "such", "no", "nor", "not", "only", "own", "same", "so", "than", "too", "very", "s", "t", "can", "will", "just", "don", "should", "now"]
 
 term_indices = {} #pickle.load(open("term_indices.p", 'rb'))
 ORIGINAL = 0
@@ -26,6 +27,7 @@ FILE = 2
 
 MODE = ORIGINAL
 
+CACHE = {}
 
 def get_token_info(token: str) -> dict: # {term: {docID: (important, count)}
     p = pickle.load(open("./index/{}.p".format(token[0]), 'rb'))
@@ -49,7 +51,7 @@ def get_term_info_file_version(term: str, open_index_files: dict) -> dict:
 
 
 def search(userIn: str) -> [int]:
-    tokens = set(ps.stem(token) for token in userIn.lower().split())
+    tokens = set(ps.stem(token) for token in (i for i in userIn.lower().split() if i not in stop_words))
     postings = get_tf_idf_list(tokens) 
     return postings
 
