@@ -47,8 +47,8 @@ def writeToIndex(new: dict) -> None:
     print('Dumping dictionary: {0}'.format(container.i), end='')
     pickle.dump(new, open("indexStage1/index{0}.p".format(container.i), "wb"))
     print(' Done.')
-    print('stored {0} unique tokens in index {1}'.format(len(dict), container.i))
-    stats['Token Count'] = stats['Token Count'] + len(dict)
+    print('stored {0} unique tokens in index {1}'.format(len(new), container.i))
+    stats['Token Count'] = stats['Token Count'] + len(new)
     new.clear()
     container.i = container.i + 1
 
@@ -97,6 +97,7 @@ def index() -> None:
                         writeToIndex(i)
 
                     if n % 50 == 0:
+                        print("Current index {0} size {1}".format(container.i, getsizeof(i)))
                         print("docID: {0} of 50k, {1} skipped ({2:.4f}%), t+{3:.1f}s".format(n, skipped,
                                                                                             skipped / (n + skipped),
                                                                                             time.time() - t)
