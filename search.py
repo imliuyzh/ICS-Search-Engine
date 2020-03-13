@@ -127,7 +127,7 @@ def getNextUrl(results: [int], numResults=5) -> str:   #idmap[e[counter][0]][0]
             pageCt += 1
             yield url
         triedPages += 1
-    print("End of results")
+    #print("End of results")
 
 def define_layout():
     return [
