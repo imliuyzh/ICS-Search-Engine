@@ -39,10 +39,7 @@ def get_token_info(token: str) -> dict: # {term: {docID: (important, count)}
 def get_term_info_dict_version(term: str) -> dict:
     with open("./index/{}.p".format(term[0]), 'rb') as p:
         index_dict = pickle.load(p)
-        try:
-            return index_dict[term]
-        except KeyError:
-            return
+        return index_dict[term]
 
 def get_term_info_file_version(term: str) -> dict:
     term_info_file = open_files[term[0]]
