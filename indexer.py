@@ -93,7 +93,7 @@ def index() -> None:
                     for token in importantTokens:
                         i[token][n] = (True, tokenCounts[token])
                     idMap[n] = (jFile['url'], len(importantTokens) + len(normalTokens))
-                    if getsizeof(i) > 10000000:
+                    if getsizeof(i) > 2000000:
                         writeToIndex(i)
 
                     if n % 50 == 0:
