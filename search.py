@@ -81,7 +81,6 @@ def getUrls(docIDs: frozenset) -> [str]:
     return [idmap[docid] for docid in docIDs]
 
 def get_tf_idf_list(terms: set) -> [int]:
-
     term_dict = dict()
     for term in terms:
         term_dict[term] = get_term_info_file_version(term)
@@ -91,11 +90,8 @@ def get_tf_idf_list(terms: set) -> [int]:
         document_dict = {doc_id:0 for doc_id in doc_ids}
         for doc_id in doc_ids:
             for term in terms:
-                if doc_id not in term_dict[term].keys():
-                    try:
-                        document_dict.pop(doc_id)
-                    except:
-                        pass
+                if doc_id not in term_dict[term].keys() and doc_id in document_dict:
+                    document_dict.pop(doc_id)
         return document_dict
 
     doc_set = set()
