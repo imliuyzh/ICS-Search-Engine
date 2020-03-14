@@ -73,20 +73,20 @@ def get_term_info_file_version(term: str) -> dict:
 
 def search(userIn: str) -> [int]:
     tokens = set(ps.stem(token) for token in (i for i in userIn.lower().split() if i not in stop_words))
-    postings = get_tf_idf_list(tokens)
+    postings = get_tf_idf_list(tokens, list(ps.stem(token) for token in (i for i in userIn.lower().split() if i not in stop_words)))
     return postings
 
 def getUrls(docIDs: frozenset) -> [str]:
     return [idmap[docid] for docid in docIDs]
 
-def get_tf_idf_list(terms: set) -> [int]:
+def get_tf_idf_list(terms: set, userIn: [str]) -> [int]:
     term_dict = dict()
     for term in terms:
         term_dict[term] = get_term_info_file_version(term)
         #term_dict[term] = get_token_info(term)
 
     def find_document(doc_ids: set) -> dict:
-        document_dict = {doc_id:0 for doc_id in doc_ids}
+        document_dict = {doc_id:dict() for doc_id in doc_ids}
         for doc_id in doc_ids:
             for term in terms:
                 if doc_id not in term_dict[term].keys() and doc_id in document_dict:
@@ -98,13 +98,31 @@ def get_tf_idf_list(terms: set) -> [int]:
         for doc_id in term_dict[term].keys():
             doc_set.add(doc_id)
 
-    tf_idf_dict = find_document(doc_set)
-    doc_vector_space, query_vector_space = [[] * len(tf_idf_dict)], []
-    for docid in tf_idf_dict:
+    doc_vector_dict, query_vector_dict = find_document(doc_set), defaultdict(int)
+    for docid in doc_vector_dict:
         for term in terms:
             tf, idf = (term_dict[term][docid][1] / idmap[docid][1]), (math.log(n / len(term_dict[term].keys())))
-            tf_idf_dict[docid] += ((tf * idf * 1.5) if term_dict[term][docid][0] else (tf * idf))
-    return sorted(tf_idf_dict, key=lambda x: -tf_idf_dict[x])
+            doc_vector_dict[docid][term] = ((tf * idf * 1.5) if term_dict[term][docid][0] else (tf * idf))
+            
+    for term in terms:
+        userInLen = len(userIn)
+        tf, idf = (userIn.count(term) / userInLen), math.log(userInLen)
+        query_vector_dict[term] = ((tf * idf * 1.5) if term_dict[term][docid][0] else (tf * idf))
+        
+    for docid in doc_vector_dict:
+        valueSum = 0
+        for value in doc_vector_dict[docid].values():
+            valueSum += (value**2)
+        valueSum = math.sqrt(valueSum)
+        for term in doc_vector_dict[docid]:
+            doc_vector_dict[docid][term] /= valueSum
+            
+    result = 0
+    for docid in doc_vector_dict:
+        for term in doc_vector_dict[docid]:
+            doc_vector_dict[docid][term] *= query_vector_dict[term]
+            
+    return sorted(doc_vector_dict, key=lambda x: -sum(doc_vector_dict[x].values()))
 
 # index = {term: {docID: (important, count)}}
 # idMap = {id_int: (url, terms_in_document)}
