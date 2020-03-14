@@ -107,7 +107,7 @@ def get_tf_idf_list(terms: set, userIn: [str]) -> [int]:
     for term in terms:
         userInLen = len(userIn)
         tf, idf = (userIn.count(term) / userInLen), math.log(userInLen)
-        query_vector_dict[term] = ((tf * idf * 1.5) if term_dict[term][docid][0] else (tf * idf))
+        query_vector_dict[term] = tf * idf
         
     for docid in doc_vector_dict:
         valueSum = 0
