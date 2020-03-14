@@ -165,6 +165,7 @@ if __name__ == "__main__":
             t = time.time()
             searchResults = search(values["search_box"])
             t = time.time() - t
+            print('The query: {0} took {1} seconds to run'.format(values["search_box"], t))
             results_list = [page for page in getNextUrl(searchResults)]
             if len(results_list) == 0:
                 results_list = ["No results were found"]
