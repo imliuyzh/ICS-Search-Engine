@@ -21,9 +21,6 @@ ps = PorterStemmer()
 stop_words = ["i", "me", "my", "myself", "we", "our", "ours", "ourselves", "you", "your", "yours", "yourself", "yourselves", "he", "him", "his", "himself", "she", "her", "hers", "herself", "it", "its", "itself", "they", "them", "their", "theirs", "themselves", "what", "which", "who", "whom", "this", "that", "these", "those", "am", "is", "are", "was", "were", "be", "been", "being", "have", "has", "had", "having", "do", "does", "did", "doing", "a", "an", "the", "and", "but", "if", "or", "because", "as", "until", "while", "of", "at", "by", "for", "with", "about", "against", "between", "into", "through", "during", "before", "after", "above", "below", "to", "from", "up", "down", "in", "out", "on", "off", "over", "under", "again", "further", "then", "once", "here", "there", "when", "where", "why", "how", "all", "any", "both", "each", "few", "more", "most", "other", "some", "such", "no", "nor", "not", "only", "own", "same", "so", "than", "too", "very", "s", "t", "can", "will", "just", "don", "should", "now"]
 
 term_indices = pickle.load(open("file_indices_2.p", 'rb'))
-open_files = {}
-for f in "0123456789abcdefghijklmnopqrstuvwxyz":
-    open_files[f] = open("index3/{}.txt".format(f), 'r')
 
 class cache:
     store = []
@@ -32,17 +29,17 @@ class cache:
     @classmethod
     def get_index(cls, token):
         if token[0] in cache.store:
-            return cache.store_dict[token[0]][ps.stem(token)]
+            return cache.store_dict[token[0]]
         else:
-            p = pickle.load(open("./index/{}.p".format(token[0]), 'rb'))
             cache.store.append(token[0])
-            cache.store_dict[token[0]] = p
+            cache.store_dict[token[0]] = open("index3/{}.txt".format(token[0]), 'r')
 
-            if len(cache.store) > 3:
+            if len(cache.store) > 10:
                 to_remove = cache.store.pop(0)
                 del cache.store_dict[to_remove]
 
-            return p[ps.stem(token)]
+            return cache.store_dict[token[0]]
+
     @classmethod
     def clear(cls):
         cache.store = []
@@ -61,7 +58,7 @@ def get_term_info_dict_version(term: str) -> dict:
         return index_dict[term]
 
 def get_term_info_file_version(term: str) -> dict:
-    term_info_file = open_files[term[0]]
+    term_info_file = cache.get_index(term)
     term_info_file.seek(term_indices[term])
     term_info = term_info_file.readline()
     term_info_list = term_info.split(',')
