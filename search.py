@@ -86,7 +86,7 @@ def get_tf_idf_list(terms: set) -> [int]:
         #term_dict[term] = get_token_info(term)
 
     def find_document(doc_ids: set) -> dict:
-        document_dict = {doc_id:0 for doc_id in doc_ids}
+        document_dict = {doc_id:dict() for doc_id in doc_ids}
         for doc_id in doc_ids:
             for term in terms:
                 if doc_id not in term_dict[term].keys() and doc_id in document_dict:
@@ -99,10 +99,11 @@ def get_tf_idf_list(terms: set) -> [int]:
             doc_set.add(doc_id)
 
     tf_idf_dict = find_document(doc_set)
+    doc_vector_space, query_vector_space = [[] * len(tf_idf_dict)], []
     for docid in tf_idf_dict:
         for term in terms:
             tf, idf = (term_dict[term][docid][1] / idmap[docid][1]), (math.log(n / len(term_dict[term].keys())))
-            tf_idf_dict[docid] += (tf * idf)
+            tf_idf_dict[docid] += ((tf * idf * 1.5) if term_dict[term][docid][0] else (tf * idf))
     return sorted(tf_idf_dict, key=lambda x: -tf_idf_dict[x])
 
 # index = {term: {docID: (important, count)}}
