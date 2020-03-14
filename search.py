@@ -6,6 +6,7 @@ import math
 import webbrowser
 from itertools import islice
 from urllib.parse import urlparse
+from collections import defaultdict
 import PySimpleGUI as sg
 
 def get_total_tokens(): #sum = 413145
