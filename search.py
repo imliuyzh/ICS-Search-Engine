@@ -103,7 +103,7 @@ def get_tf_idf_list(terms: set) -> [int]:
     for docid in tf_idf_dict:
         for term in terms:
             tf, idf = (term_dict[term][docid][1] / idmap[docid][1]), (math.log(n / len(term_dict[term].keys())))
-            tf_idf_dict[docid] += ((tf * idf * 1.5) if term_dict[term][docid][0] else (tf * idf))
+            tf_idf_dict[docid] += ((tf * idf * 2) if term_dict[term][docid][0] else (tf * idf))
     return sorted(tf_idf_dict, key=lambda x: -tf_idf_dict[x])
 
 # index = {term: {docID: (important, count)}}
