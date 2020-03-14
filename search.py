@@ -59,13 +59,16 @@ def get_term_info_dict_version(term: str) -> dict:
 
 def get_term_info_file_version(term: str) -> dict:
     term_info_file = cache.get_index(term)
-    term_info_file.seek(term_indices[term])
-    term_info = term_info_file.readline()
-    term_info_list = term_info.split(',')
-    term_info = {}
-    for i in range(1, (len(term_info_list) - 4), 3):
-        term_info[int(term_info_list[i])] = (bool(term_info_list[i+1]), int(term_info_list[i+2]))
-    return term_info
+    try:
+        term_info_file.seek(term_indices[term])
+        term_info = term_info_file.readline()
+        term_info_list = term_info.split(',')
+        term_info = {}
+        for i in range(1, (len(term_info_list) - 4), 3):
+            term_info[int(term_info_list[i])] = (bool(term_info_list[i+1]), int(term_info_list[i+2]))
+        return term_info
+    except Exception:
+        return {}
 
 
 
